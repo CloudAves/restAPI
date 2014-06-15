@@ -1,0 +1,29 @@
+{
+    "name": "RestAPI",
+    "description": "A nodejs based rest api with token authorization",
+    "author": "Bengt Weiße alias KillerCodeMonkey <bengtler@gmail.com>",
+    "version": "0.0.1",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/KillerCodeMonkey/restAPI.git"
+    },
+    "dependencies": {
+        "mongodb": "1.4.6",
+        "passport": "0.2.0",
+        "restify": "2.8.1",
+        "requirejs": "2.1.14",
+        "express": "4.3.2",
+        "winston": "0.7.3",
+        "node-promise": "0.5.10",
+        "mongoose": "3.8.12",
+        "mongoose-schema-extend": "0.1.7",
+        "grunt": "0.4.5",
+        "grunt-cli": "0.1.13"
+    },
+    "devDependencies": {
+        "expect.js": "0.3.1",
+        "supertest": "0.13.0",
+        "grunt-mocha-test": "0.11.0"
+    },
+    "engine": "node >= 0.10.28"
+}

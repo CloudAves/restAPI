@@ -27,3 +27,7 @@ Next steps
 ==========
 * intigrate passportjs with token based authentication
 * add permission handling -> check in appServer if request needs auth (set for each action) and which role
+
+https://auth0.com/blog/2014/01/07/angularjs-authentication-with-cookies-vs-token/
+http://aleksandrov.ws/2013/09/12/restful-api-with-nodejs-plus-mongodb/
+http://stackoverflow.com/questions/20228572/passport-local-with-node-jwt-simple

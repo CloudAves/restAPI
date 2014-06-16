@@ -6,14 +6,27 @@ define([
     'appConfig',
     'databaseConfig',
     'fs',
-    'node-promise'
-], function (express, path, mongoose, log, appConfig, databaseConfig, fs, promise) {
+    'node-promise',
+    'express-jwt'
+], function (express, path, mongoose, log, appConfig, databaseConfig, fs, promise, expressJwt) {
     'use strict';
 
     var urlSchema = '/api/:classname?/:objectid?/:action?',
         application_root = __dirname,
         app = express.createServer(),
-        Promise = promise.Promise;
+        Promise = promise.Promise,
+        secret = 'efskj43dsakwesdo!345as?09u2#*~23423(';
+
+    // Database
+    mongoose.connect('mongodb://localhost/' + databaseConfig.dbname);
+    var db = mongoose.connection;
+
+    db.on('error', function (err) {
+        log.error('connection error:', err.message);
+    });
+    db.once('open', function callback() {
+        log.info("Connected to DB!");
+    });
 
     // require model and enpoint
     function requireFile(file, endpoints, models) {
@@ -61,7 +74,10 @@ define([
             var params = req.params,
                 className = params.classname,
                 model,
-                endpoint;
+                endpoint,
+                action,
+                access = false,
+                i = 0;
 
             if (className && models[className] && endpoints[className]) {
                 model = models[className];
@@ -75,13 +91,13 @@ define([
                             req.object = object;
                             if (params.action) {
                                 if (endpoint[req.method][params.action]) {
-                                    endpoint[req.method][params.action](req, res);
+                                    action = endpoint[req.method][params.action];
                                 } else {
                                     res.send(404, 'action_not_found');
                                 }
                             } else {
-                                if (endpoint[req.method]['object']) {
-                                    endpoint[req.method]['object'](req, res);
+                                if (endpoint[req.method].object) {
+                                    action = endpoint[req.method].object;
                                 } else {
                                     res.send(404, 'action_not_found');
                                 }
@@ -91,25 +107,41 @@ define([
                 } else {
                     if (params.action) {
                         if (endpoint[req.method][params.action]) {
-                            endpoint[req.method][params.action](req, res);
+                            action = endpoint[req.method][params.action];
                         } else {
                             res.send(404, 'action_not_found');
                         }
                     } else {
                         if (endpoint[req.method]['']) {
-                            endpoint[req.method][''](req, res);
+                            action = endpoint[req.method][''];
                         } else {
                             res.send(404, 'action_not_found');
                         }
                     }
                 }
+                if (action.permissions && action.permissions.length > 0) {
+                    if (req.user && req.user.permissions) {
+                        for (i; i < req.user.permissions.length; i = i + 1) {
+                            if (action.permissions.indexOf(req.user.permissions[i]) > -1) {
+                                access = true;
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    access = true;
+                }
+                if (access) {
+                    action(req, res);
+                } else {
+                    res.send(403, {
+                        error: 'permission_denied'
+                    });
+                }
             } else {
                 res.send(404, 'no_classname');
             }
         }
-
-        // Database
-        mongoose.connect('mongodb://localhost/' + databaseConfig.dbname);
 
         // Config
         app.configure(function () {
@@ -118,7 +150,7 @@ define([
             app.use(app.router); // simple route management
             app.use(express.static(path.join(application_root, 'public'))); // static file server
             app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); // error stacks
-            
+
             // authentication
             app.use(function (req, res, next) {
                 // check authentication -> and put user object on req.user else undefined
@@ -150,12 +182,6 @@ define([
         });
 
         // set generic provided api urls
-        app.get(urlSchema, execAction);
-
-        app.post(urlSchema, execAction);
-
-        app.del(urlSchema, execAction);
-
-        app.put(urlSchema, execAction);
+        app.all(urlSchema, expressJwt({secret: secret}), execAction);
     });
 });

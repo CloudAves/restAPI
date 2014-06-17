@@ -7,15 +7,16 @@ define([
     'databaseConfig',
     'fs',
     'node-promise',
-    'express-jwt'
-], function (express, path, mongoose, log, appConfig, databaseConfig, fs, promise, expressJwt) {
+    'util/actionHandler',
+    'util/authenticationHandler'
+], function (express, path, mongoose, log, appConfig, databaseConfig, fs, promise, actionHandler, authenticationHandler) {
     'use strict';
 
-    var urlSchema = '/api/:classname?/:objectid?/:action?',
+    var urlObjectSchema = '/api/:classname/id/:objectid/:action?',
+        urlClassSchema = '/api/:classname/:action?',
         application_root = __dirname,
         app = express.createServer(),
-        Promise = promise.Promise,
-        secret = 'efskj43dsakwesdo!345as?09u2#*~23423(';
+        Promise = promise.Promise;
 
     // Database
     mongoose.connect('mongodb://localhost/' + databaseConfig.dbname);
@@ -35,11 +36,18 @@ define([
 
         log.info('Load' + nameWithoutExtension + 'model and endpoints');
 
-        require('models/' + nameWithoutExtension, 'endpoints/' + nameWithoutExtension, function (model, endpoint) {
-            endpoints[nameWithoutExtension] = endpoint;
-            models[nameWithoutExtension] = model;
-            filePromise.resolve();
-        });
+        try {
+            require('models/' + nameWithoutExtension, 'endpoints/' + nameWithoutExtension, function (model, endpoint) {
+                endpoints[nameWithoutExtension] = endpoint;
+                models[nameWithoutExtension] = model;
+                filePromise.resolve();
+            });
+        } catch (e) {
+            log.error(e);
+            filePromise.reject();
+        }
+
+        return filePromise;
     }
 
     // load all models (in src/models) and the associated endpoint
@@ -70,74 +78,18 @@ define([
     // load models and endpoints
     loadModelEndpoints.then(function (models, endpoints) {
         // get called action
-        function execAction(req, res) {
+        function execAction(req, res, isObjectRequest) {
             var params = req.params,
                 className = params.classname,
                 model,
-                endpoint,
-                action,
-                access = false,
-                i = 0;
+                endpoint;
 
+            // load model and endpoint by class
             if (className && models[className] && endpoints[className]) {
                 model = models[className];
                 endpoint = endpoints[className];
 
-                if (params.objectId) {
-                    model.findById(params.objectId, function (err, object) {
-                        if (err) {
-                            res.send(404, 'object_not_found');
-                        } else {
-                            req.object = object;
-                            if (params.action) {
-                                if (endpoint[req.method][params.action]) {
-                                    action = endpoint[req.method][params.action];
-                                } else {
-                                    res.send(404, 'action_not_found');
-                                }
-                            } else {
-                                if (endpoint[req.method].object) {
-                                    action = endpoint[req.method].object;
-                                } else {
-                                    res.send(404, 'action_not_found');
-                                }
-                            }
-                        }
-                    });
-                } else {
-                    if (params.action) {
-                        if (endpoint[req.method][params.action]) {
-                            action = endpoint[req.method][params.action];
-                        } else {
-                            res.send(404, 'action_not_found');
-                        }
-                    } else {
-                        if (endpoint[req.method]['']) {
-                            action = endpoint[req.method][''];
-                        } else {
-                            res.send(404, 'action_not_found');
-                        }
-                    }
-                }
-                if (action.permissions && action.permissions.length > 0) {
-                    if (req.user && req.user.permissions) {
-                        for (i; i < req.user.permissions.length; i = i + 1) {
-                            if (action.permissions.indexOf(req.user.permissions[i]) > -1) {
-                                access = true;
-                                break;
-                            }
-                        }
-                    }
-                } else {
-                    access = true;
-                }
-                if (access) {
-                    action(req, res);
-                } else {
-                    res.send(403, {
-                        error: 'permission_denied'
-                    });
-                }
+                actionHandler(req, res, model, endpoint, isObjectRequest);
             } else {
                 res.send(404, 'no_classname');
             }
@@ -151,19 +103,14 @@ define([
             app.use(express.static(path.join(application_root, 'public'))); // static file server
             app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); // error stacks
 
-            // authentication
             app.use(function (req, res, next) {
-                // check authentication -> and put user object on req.user else undefined
-            });
-
-            app.use(function(req, res, next) {
                 res.status(404);
                 log.debug('Not found URL: %s', req.url);
                 res.send({ error: 'not_found' });
                 return;
             });
 
-            app.use(function(err, req, res, next) {
+            app.use(function (err, req, res, next) {
                 res.status(err.status || 500);
                 log.error('Internal error(%d): %s', res.statusCode, err.message);
                 res.send({ error: err.message });
@@ -178,10 +125,15 @@ define([
 
         // check if server runs
         app.get('/api', function (req, res) {
-            res.send('API is running');
+            res.send('api_online');
         });
 
-        // set generic provided api urls
-        app.all(urlSchema, expressJwt({secret: secret}), execAction);
-    });
+        // set generic provided api object urls
+        app.all(urlObjectSchema, authenticationHandler, function (req, res) {
+            execAction(req, res, true);
+        });
+
+        // set generic provided api class urls
+        app.all(urlClassSchema, authenticationHandler, execAction);
+    }, log.error);
 });

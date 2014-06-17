@@ -8,6 +8,7 @@ define([
 ], function (jwt, crypto, Authentication, User, appConfig, promise) {
     var Promise = promise.Promise;
 
+    // store new authentication for user
     function generateAuthentication(user) {
         var $q = new Promise(),
             secret = crypto.randomBytes(128).toString('base64'),
@@ -89,6 +90,7 @@ define([
                     }
                 }
             },
+            // refresh access token / authentication
             'refresh': {
                 permissions: ['user'],
                 exec: function (req, res) {
@@ -125,6 +127,7 @@ define([
                 }
             }
         },
+        // logout request
         get: {
             'logout': {
                 permissions: ['user'],

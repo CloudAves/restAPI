@@ -7,8 +7,6 @@
     var log = require('log');
 
     var cluster = require('cluster');
-
-    var http = require('http');
     var numCPUs = require('os').cpus().length;
 
     if (cluster.isMaster) {
@@ -36,7 +34,6 @@
             cluster.fork();
         });
     } else {
-        var server = http.createServer();
-        server.listen('8080');
+        require('appServer');
     }
 }(require));

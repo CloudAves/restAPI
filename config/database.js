@@ -4,8 +4,12 @@ define(function () {
     'use strict';
 
     return {
-        username: '',
-        password: '',
-        dbname: ''
+        username: 'punch',
+        password: 'lyerWynMea',
+        dbname: 'restAPI',
+        host: 'localhost',
+        port: '20674',
+        maxConnections: 20,
+        authdb: 'admin'
     };
 });

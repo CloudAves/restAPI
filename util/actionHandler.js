@@ -3,7 +3,12 @@ define(function () {
         var action,
             params = req.params,
             access = false,
+            method = req.method.toLowerCase(),
             i = 0;
+
+        if (!endpoint[method]) {
+            return res.send(404);
+        }
 
         // request has an objectid.
         if (isObjectRequest) {
@@ -20,15 +25,15 @@ define(function () {
                     // if there is special action.
                     if (params.action) {
                         // check if action exists.
-                        if (endpoint[req.method][params.action]) {
-                            action = endpoint[req.method][params.action];
+                        if (endpoint[method][params.action]) {
+                            action = endpoint[method][params.action];
                         } else {
                             res.send(404, 'action_not_found');
                         }
                     } else {
                         // load default object action 'object'.
-                        if (endpoint[req.method].object) {
-                            action = endpoint[req.method].object;
+                        if (endpoint[method].object) {
+                            action = endpoint[method].object;
                         } else {
                             res.send(404, 'action_not_found');
                         }
@@ -39,15 +44,15 @@ define(function () {
             // if action is set
             if (params.action) {
                 // check if actions exists.
-                if (endpoint[req.method][params.action]) {
-                    action = endpoint[req.method][params.action];
+                if (endpoint[method][params.action]) {
+                    action = endpoint[method][params.action];
                 } else {
                     res.send(404, 'action_not_found');
                 }
             } else {
                 // check if default class action '' exists.
-                if (endpoint[req.method]['']) {
-                    action = endpoint[req.method][''];
+                if (endpoint[method]['']) {
+                    action = endpoint[method][''];
                 } else {
                     res.send(404, 'action_not_found');
                 }

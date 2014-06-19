@@ -26,34 +26,39 @@ define([
             return next();
         }
 
-        // verify token
-        jwt.verify(token, appConfig.secret, function (err, decoded) {
-            if (err) {
-                if (decoded && decoded.secret && decoded.userId) {
+        // if verify fails with -> invalid token
+        try {
+            // verify token
+            jwt.verify(token, appConfig.secret, function (err, decoded) {
+                if (err) {
                     // expired or invalid token -> check if it exists in database
                     Authentication.findOne({
-                        accessToken: token,
-                        secret: decoded.secret,
-                        userId: decoded.userId
+                        accessToken: token
                     }, function (err, authentication) {
                         if (err) {
                             next();
                         } else {
                             // if it exists -> delete it
-                            authentication.remove(function () {
+                            if (authentication) {
+                                authentication.remove(function () {
+                                    next();
+                                });
+                            } else {
                                 next();
-                            });
+                            }
                         }
                     });
                 } else {
+                    // everything works -> put decoded user on req.
+                    req.user = decoded;
+                    req.user.accessToken = token;
                     next();
                 }
-            } else {
-                // everything works -> put decoded user on req.
-                req.user = decoded;
-                req.user.accessToken = token;
-                next();
-            }
-        });
+            });
+        } catch (e) {
+            res.send(400, {
+                error: 'invalid_access_token'
+            });
+        }
     };
 });

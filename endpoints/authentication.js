@@ -13,7 +13,7 @@ define([
         var $q = new Promise(),
             secret = crypto.randomBytes(128).toString('base64'),
             userData = {
-                id: user.userId,
+                id: user.userId || user.id,
                 username: user.username,
                 email: user.email,
                 created: user.created,
@@ -56,6 +56,11 @@ define([
             'login': {
                 permissions: [],
                 exec: function (req, res) {
+                    if (req.user) {
+                        return res.send(400, {
+                            error: 'already_logged_in'
+                        });
+                    }
                     if (req.body.login && req.body.password) {
                         User.findOne({
                             $or: [{
@@ -94,32 +99,38 @@ define([
                 exec: function (req, res) {
                     Authentication.findOne({
                         accessToken: req.user.accessToken,
-                        userId: req.user.userId,
+                        userId: req.user.id,
                         secret: req.user.secret
                     }, function (err, authentication) {
                         if (err) {
                             res.send(err);
                         } else {
-                            if (authentication.refreshToken === req.body.refreshToken) {
-                                authentication.remove(function (err) {
-                                    if (err) {
-                                        res.send(400, err);
-                                    } else {
-                                        generateAuthentication(req.user).then(function (userData) {
-                                            res.json(userData);
-                                        }, function (err) {
-                                            res.json(400, err);
-                                        });
-                                    }
-                                });
+                            if (authentication && authentication.refreshToken) {
+                                if (!req.body.refreshToken) {
+                                    return res.json(400, {
+                                        error: 'missing_refresh_token'
+                                    });
+                                }
+                                if (authentication.refreshToken === req.body.refreshToken) {
+                                    authentication.remove(function (err) {
+                                        if (err) {
+                                            res.send(400, err);
+                                        } else {
+                                            generateAuthentication(req.user).then(function (userData) {
+                                                res.json(userData);
+                                            }, function (err) {
+                                                res.json(400, err);
+                                            });
+                                        }
+                                    });
+                                } else {
+                                    res.send(400, {
+                                        error: 'wrong_refresh_token'
+                                    });
+                                }
                             } else {
-                                res.send(400, {
-                                    error: 'wrong_refresh_token'
-                                });
+                                res.json(403);
                             }
-                            authentication.remove(function () {
-                                res.end();
-                            });
                         }
                     });
                 }

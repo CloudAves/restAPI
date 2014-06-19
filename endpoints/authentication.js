@@ -41,9 +41,7 @@ define([
 
         auth.save(function (err) {
             if (err) {
-                $q.reject({
-                    error: 'failed_authentication'
-                });
+                $q.reject(err);
             } else {
                 $q.resolve(userData);
             }
@@ -133,15 +131,16 @@ define([
                 permissions: ['user'],
                 exec: function (req, res) {
                     Authentication.findOne({
-                        accessToken: req.user.accessToken,
-                        userId: req.user.userId,
-                        secret: req.user.secret
+                        accessToken: req.user.accessToken
                     }, function (err, authentication) {
                         if (err) {
                             res.send(err);
                         } else {
+                            if (!authentication) {
+                                return res.send(403);
+                            }
                             authentication.remove(function () {
-                                res.end();
+                                res.send();
                             });
                         }
                     });

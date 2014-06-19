@@ -51,6 +51,7 @@ define([
             } else {
                 // everything works -> put decoded user on req.
                 req.user = decoded;
+                req.user.accessToken = token;
                 next();
             }
         });

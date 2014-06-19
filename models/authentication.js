@@ -20,9 +20,8 @@ define([
             unique: true,
             required: true
         },
-        refershToken: {
+        refreshToken: {
             type: String,
-            unique: true,
             required: true
         },
         created: {

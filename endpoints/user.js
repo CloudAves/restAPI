@@ -29,13 +29,9 @@ define([
                                 });
                             } else {
                                 user = new User(params);
+
                                 user.save(function (err) {
                                     if (err) {
-                                        User.findOne({
-                                            username: 'test'
-                                        }, function (err, user) {
-                                            console.log(user, err);
-                                        });
                                         res.send(400, err);
                                     } else {
                                         res.send(200);

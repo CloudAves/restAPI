@@ -18,7 +18,7 @@ define(function () {
             // try to find object of class model.
             model.findById(params.objectId, function (err, object) {
                 if (err) {
-                    res.send(404, 'object_not_found');
+                    return res.send(404, 'object_not_found');
                 } else {
                     // put object on req.object.
                     req.object = object;
@@ -28,14 +28,14 @@ define(function () {
                         if (endpoint[method][params.action]) {
                             action = endpoint[method][params.action];
                         } else {
-                            res.send(404, 'action_not_found');
+                            return res.send(404, 'action_not_found');
                         }
                     } else {
                         // load default object action 'object'.
                         if (endpoint[method].object) {
                             action = endpoint[method].object;
                         } else {
-                            res.send(404, 'action_not_found');
+                            return res.send(404, 'action_not_found');
                         }
                     }
                 }
@@ -47,14 +47,14 @@ define(function () {
                 if (endpoint[method][params.action]) {
                     action = endpoint[method][params.action];
                 } else {
-                    res.send(404, 'action_not_found');
+                    return res.send(404, 'action_not_found');
                 }
             } else {
                 // check if default class action '' exists.
                 if (endpoint[method]['']) {
                     action = endpoint[method][''];
                 } else {
-                    res.send(404, 'action_not_found');
+                    return res.send(404, 'action_not_found');
                 }
             }
         }

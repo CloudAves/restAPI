@@ -32,7 +32,7 @@ define([
         },
         permissions: {
             type: [String],
-            'default': []
+            'default': ['user']
         },
         resetpassword: {
             type: String,
@@ -41,7 +41,7 @@ define([
     });
 
     User.methods.encryptPassword = function (password) {
-        return crypto.pbkdf2Sync(password, this.salt, 10000, 512);
+        return crypto.pbkdf2Sync(password, this.salt, 10000, 512).toString('hex');
     };
 
     User.virtual('userId')

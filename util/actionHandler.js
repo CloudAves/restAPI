@@ -4,11 +4,13 @@ define(function () {
             params = req.params,
             access = false,
             method = req.method.toLowerCase(),
+            actionList,
             i = 0;
 
-        if (!endpoint[method]) {
+        if (!endpoint[params.version] || !endpoint[params.version][method]) {
             return res.send(404);
         }
+        actionList = endpoint[params.version][method];
 
         // request has an objectid.
         if (isObjectRequest) {
@@ -19,43 +21,38 @@ define(function () {
             model.findById(params.objectId, function (err, object) {
                 if (err) {
                     return res.send(404, 'object_not_found');
-                } else {
-                    // put object on req.object.
-                    req.object = object;
-                    // if there is special action.
-                    if (params.action) {
-                        // check if action exists.
-                        if (endpoint[method][params.action]) {
-                            action = endpoint[method][params.action];
-                        } else {
-                            return res.send(404, 'action_not_found');
-                        }
-                    } else {
-                        // load default object action 'object'.
-                        if (endpoint[method].object) {
-                            action = endpoint[method].object;
-                        } else {
-                            return res.send(404, 'action_not_found');
-                        }
+                }
+                // put object on req.object.
+                req.object = object;
+                // if there is special action.
+                if (params.action) {
+                    // check if action exists.
+                    if (!actionList[params.action]) {
+                        return res.send(404, 'action_not_found');
                     }
+                    action = actionList[params.action];
+                } else {
+                    // load default object action 'object'.
+                    if (!actionList.object) {
+                        return res.send(404, 'action_not_found');
+                    }
+                    action = actionList.object;
                 }
             });
         } else {
             // if action is set
             if (params.action) {
                 // check if actions exists.
-                if (endpoint[method][params.action]) {
-                    action = endpoint[method][params.action];
-                } else {
+                if (!actionList[params.action]) {
                     return res.send(404, 'action_not_found');
                 }
+                action = actionList[params.action];
             } else {
                 // check if default class action '' exists.
-                if (endpoint[method]['']) {
-                    action = endpoint[method][''];
-                } else {
+                if (!actionList['']) {
                     return res.send(404, 'action_not_found');
                 }
+                action = actionList[''];
             }
         }
         // check if action has permissions.
@@ -74,10 +71,9 @@ define(function () {
             access = true;
         }
         // if user is allowed to do action
-        if (access) {
-            action.exec(req, res);
-        } else {
-            res.send(403, 'permission_denied');
+        if (!access) {
+            return res.send(403, 'permission_denied');
         }
+        action.exec(req, res);
     };
 });

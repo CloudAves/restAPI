@@ -14,8 +14,8 @@ define([
 ], function (express, bodyParser, methodOverride, errorHandler, mongoose, log, appConfig, databaseConfig, fs, promise, actionHandler, authenticationHandler) {
     'use strict';
 
-    var urlObjectSchema = '/api/:classname/id/:objectid/:action?',
-        urlClassSchema = '/api/:classname/:action?',
+    var urlObjectSchema = '/api/:version/:classname/id/:objectid/:action?',
+        urlClassSchema = '/api/:version/:classname/:action?',
         app = express(),
         Promise = promise.Promise,
         opt = {
@@ -82,18 +82,18 @@ define([
         function execAction(req, res, isObjectRequest) {
             var params = req.params,
                 className = params.classname,
+                version = params.version,
                 model,
                 endpoint;
 
             // load model and endpoint by class
-            if (className && models[className] && endpoints[className]) {
+            if (version && className && models[className] && endpoints[className]) {
                 model = models[className];
                 endpoint = endpoints[className];
 
-                actionHandler(req, res, model, endpoint, isObjectRequest);
-            } else {
-                res.send(404, 'no_classname');
+                return actionHandler(req, res, model, endpoint, isObjectRequest);
             }
+            res.send(404, 'no_classname');
         }
 
         // Config

@@ -10,20 +10,18 @@ define([
             credentials;
 
         // extract bearer token if it is set in headers authorization
-        if (req.headers && req.headers.authorization) {
-            parts = req.headers.authorization.split(' ');
-            if (parts.length === 2) {
-                scheme = parts[0];
-                credentials = parts[1];
-
-                if (/^Bearer$/i.test(scheme)) {
-                    token = credentials;
-                }
-            } else {
-                return next();
-            }
-        } else {
+        if (!req.headers || !req.headers.authorization) {
             return next();
+        }
+        parts = req.headers.authorization.split(' ');
+        if (parts.length !== 2) {
+            return next();
+        }
+        scheme = parts[0];
+        credentials = parts[1];
+
+        if (/^Bearer$/i.test(scheme)) {
+            token = credentials;
         }
 
         // if verify fails with -> invalid token
@@ -36,17 +34,15 @@ define([
                         accessToken: token
                     }, function (err, authentication) {
                         if (err) {
-                            next();
-                        } else {
-                            // if it exists -> delete it
-                            if (authentication) {
-                                authentication.remove(function () {
-                                    next();
-                                });
-                            } else {
-                                next();
-                            }
+                            return next();
                         }
+                        // if it exists -> delete it
+                        if (!authentication) {
+                            return next();
+                        }
+                        authentication.remove(function () {
+                            next();
+                        });
                     });
                 } else {
                     // everything works -> put decoded user on req.

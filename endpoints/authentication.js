@@ -50,112 +50,113 @@ define([
         return $q;
     }
 
-    return {
-        post : {
-            // /authentication
-            'login': {
-                permissions: [],
-                exec: function (req, res) {
-                    if (req.user) {
-                        return res.send(400, {
-                            error: 'already_logged_in'
-                        });
-                    }
-                    if (req.body.login && req.body.password) {
-                        User.findOne({
-                            $or: [{
-                                email: req.body.login
-                            }, {
-                                username: req.body.login
-                            }]
-                        }, function (err, user) {
-                            if (err) {
-                                res.json({
-                                    error: 'user_not_found'
-                                });
-                            } else if (user.checkPassword(req.body.password)) {
-
-                                generateAuthentication(user).then(function (userData) {
-                                    res.json(userData);
-                                }, function (err) {
-                                    res.json(400, err);
-                                });
-                            } else {
-                                res.json({
-                                    error: 'invalid_login_password_combination'
-                                });
-                            }
-                        });
-                    } else {
-                        res.json({
-                            error: 'missing_login_or_password'
-                        });
-                    }
-                }
-            },
-            // refresh access token / authentication
-            'refresh': {
-                permissions: ['user'],
-                exec: function (req, res) {
-                    Authentication.findOne({
-                        accessToken: req.user.accessToken,
-                        userId: req.user.id,
-                        secret: req.user.secret
-                    }, function (err, authentication) {
-                        if (err) {
-                            res.send(err);
-                        } else {
-                            if (authentication && authentication.refreshToken) {
-                                if (!req.body.refreshToken) {
-                                    return res.json(400, {
-                                        error: 'missing_refresh_token'
-                                    });
-                                }
-                                if (authentication.refreshToken === req.body.refreshToken) {
-                                    authentication.remove(function (err) {
-                                        if (err) {
-                                            res.send(400, err);
-                                        } else {
-                                            generateAuthentication(req.user).then(function (userData) {
-                                                res.json(userData);
-                                            }, function (err) {
-                                                res.json(400, err);
-                                            });
-                                        }
-                                    });
-                                } else {
-                                    res.send(400, {
-                                        error: 'wrong_refresh_token'
-                                    });
-                                }
-                            } else {
-                                res.json(403);
-                            }
-                        }
-                    });
-                }
+    this.login = {
+        permissions: [],
+        exec: function (req, res) {
+            if (req.user) {
+                return res.send(400, {
+                    error: 'already_logged_in'
+                });
             }
-        },
-        // logout request
-        get: {
-            'logout': {
-                permissions: ['user'],
-                exec: function (req, res) {
-                    Authentication.findOne({
-                        accessToken: req.user.accessToken
-                    }, function (err, authentication) {
-                        if (err) {
-                            res.send(err);
-                        } else {
-                            if (!authentication) {
-                                return res.send(403);
-                            }
-                            authentication.remove(function () {
-                                res.send();
-                            });
-                        }
+            if (!req.body.login || !req.body.password) {
+                return res.send({
+                    error: 'missing_login_or_password'
+                });
+            }
+            User.findOne({
+                $or: [{
+                    email: req.body.login
+                }, {
+                    username: req.body.login
+                }]
+            }, function (err, user) {
+                if (err) {
+                    return res.send({
+                        error: 'user_not_found'
                     });
                 }
+                if (!user.checkPassword(req.body.password)) {
+                    return res.send({
+                        error: 'invalid_login_password_combination'
+                    });
+                }
+                generateAuthentication(user).then(function (userData) {
+                    res.send(userData);
+                }, function (err) {
+                    res.send(400, err);
+                });
+            });
+        }
+    };
+
+    this.refresh = {
+        permissions: ['user'],
+        exec: function (req, res) {
+            Authentication.findOne({
+                accessToken: req.user.accessToken,
+                userId: req.user.id,
+                secret: req.user.secret
+            }, function (err, authentication) {
+                if (err) {
+                    return res.send(err);
+                }
+                if (!authentication || !authentication.refreshToken) {
+                    res.send(403);
+                }
+                if (!req.body.refreshToken) {
+                    return res.send(400, {
+                        error: 'missing_refresh_token'
+                    });
+                }
+                if (authentication.refreshToken !== req.body.refreshToken) {
+                    return res.send(400, {
+                        error: 'wrong_refresh_token'
+                    });
+                }
+                authentication.remove(function (err) {
+                    if (err) {
+                        return res.send(400, err);
+                    }
+                    generateAuthentication(req.user).then(function (userData) {
+                        res.send(userData);
+                    }, function (err) {
+                        res.send(400, err);
+                    });
+                });
+            });
+        }
+    };
+
+    this.logout = {
+        permissions: ['user'],
+        exec: function (req, res) {
+            Authentication.findOne({
+                accessToken: req.user.accessToken
+            }, function (err, authentication) {
+                if (err) {
+                    return res.send(err);
+                }
+                if (!authentication) {
+                    return res.send(403);
+                }
+                authentication.remove(function () {
+                    res.send();
+                });
+            });
+        }
+    };
+
+    return {
+        v1: {
+            post : {
+                // /authentication
+                'login': this.login,
+                // refresh access token / authentication
+                'refresh': this.refresh
+            },
+            // logout request
+            get: {
+                'logout': this.logout
             }
         }
     };

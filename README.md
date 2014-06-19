@@ -1,7 +1,7 @@
 restAPI
 =======
 
-NodeJS API + passport + crypto + token authentication
+NodeJS API + crypto + token authentication
 
 install
 =======

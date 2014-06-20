@@ -1,4 +1,6 @@
-define(function () {
+define([
+    'util/modelEndpointHandler'
+], function (modelEndpointHandler) {
 
     function checkPermissions(req, action) {
         var access = false,
@@ -23,7 +25,7 @@ define(function () {
         return access;
     }
 
-    return function (req, res, model, endpoint, isObjectRequest) {
+    return function (req, res, endpoint, isObjectRequest) {
         var action,
             params = req.params,
             method = req.method.toLowerCase(),
@@ -40,34 +42,35 @@ define(function () {
                 return res.send(404, 'objectid_not_found');
             }
             // try to find object of class model.
-            model.findById(params.objectid, function (err, object) {
-                if (err) {
-                    return res.send(404, err);
-                }
-                if (!object) {
-                    return res.send(404, 'object_not_found');
-                }
-                // put object on req.object.
-                req.object = object;
-                // if there is special action.
-                if (params.action) {
-                    // check if action exists.
-                    if (!actionList[params.action]) {
-                        return res.send(404, 'action_not_found');
+            modelEndpointHandler.initDb(req, res, params.classname, function (req, res, model) {
+                model.findById(params.objectid, function (err, object) {
+                    if (err) {
+                        return res.send(404, err);
                     }
-                    action = actionList[params.action];
-                } else {
-                    // load default object action 'object'.
-                    if (!actionList.object) {
-                        return res.send(404, 'action_not_found');
+                    if (!object) {
+                        return res.send(404, 'object_not_found');
                     }
-                    action = actionList.object;
-                }
-                if (!checkPermissions(req, action)) {
-                    return res.send(403, 'permission_denied');
-                }
-
-                action.exec(req, res);
+                    // put object on req.object.
+                    req.object = object;
+                    // if there is special action.
+                    if (params.action) {
+                        // check if action exists.
+                        if (!actionList[params.action]) {
+                            return res.send(404, 'action_not_found');
+                        }
+                        action = actionList[params.action];
+                    } else {
+                        // load default object action 'object'.
+                        if (!actionList.object) {
+                            return res.send(404, 'action_not_found');
+                        }
+                        action = actionList.object;
+                    }
+                    if (!checkPermissions(req, action)) {
+                        return res.send(403, 'permission_denied');
+                    }
+                    modelEndpointHandler.initDb(req, res, action.models, action.exec);
+                });
             });
         } else {
             // if action is set
@@ -89,7 +92,7 @@ define(function () {
             if (!checkPermissions(req, action)) {
                 return res.send(403, 'permission_denied');
             }
-            action.exec(req, res);
+            modelEndpointHandler.initDb(req, res, action.models, action.exec);
         }
     };
 });

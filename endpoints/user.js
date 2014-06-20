@@ -1,6 +1,4 @@
-define([
-    'models/user'
-], function (User) {
+define(function () {
 
     // get current logged in user
     this.account = {
@@ -38,8 +36,10 @@ define([
     // get userlist
     this.userlist = {
         permissions: [],
-        exec: function (req, res) {
+        models: ['user'],
+        exec: function (req, res, User) {
             User.find({}, function (err, users) {
+                console.log('test');
                 if (err) {
                     return res.send(400, err);
                 }
@@ -50,7 +50,8 @@ define([
 
     // register
     this.register = {
-        exec: function (req, res) {
+        models: ['user'],
+        exec: function (req, res, User) {
             var params = req.body,
                 user;
 

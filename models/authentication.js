@@ -32,5 +32,8 @@ define([
 
     var AccessTokenModel = mongoose.model('AccessToken', AccessToken);
 
-    return AccessTokenModel;
+    return {
+        model: AccessTokenModel,
+        schema: AccessToken
+    };
 });

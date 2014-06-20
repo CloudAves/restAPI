@@ -1,15 +1,13 @@
 define([
     'jsonwebtoken',
     'crypto',
-    'models/authentication',
-    'models/user',
     'appConfig',
     'node-promise'
-], function (jwt, crypto, Authentication, User, appConfig, promise) {
+], function (jwt, crypto, appConfig, promise) {
     var Promise = promise.Promise;
 
     // store new authentication for user
-    function generateAuthentication(user) {
+    function generateAuthentication(user, Authentication) {
         var $q = new Promise(),
             secret = crypto.randomBytes(128).toString('base64'),
             userData = {
@@ -52,7 +50,8 @@ define([
 
     this.login = {
         permissions: [],
-        exec: function (req, res) {
+        models: ['user', 'authentication'],
+        exec: function (req, res, User, Authentication) {
             if (req.user) {
                 return res.send(400, {
                     error: 'already_logged_in'
@@ -80,7 +79,7 @@ define([
                         error: 'invalid_login_password_combination'
                     });
                 }
-                generateAuthentication(user).then(function (userData) {
+                generateAuthentication(user, Authentication).then(function (userData) {
                     res.send(userData);
                 }, function (err) {
                     res.send(400, err);
@@ -91,7 +90,8 @@ define([
 
     this.refresh = {
         permissions: ['user'],
-        exec: function (req, res) {
+        models: ['Authentication'],
+        exec: function (req, res, Authentication) {
             Authentication.findOne({
                 accessToken: req.user.accessToken,
                 userId: req.user.id,
@@ -117,7 +117,7 @@ define([
                     if (err) {
                         return res.send(400, err);
                     }
-                    generateAuthentication(req.user).then(function (userData) {
+                    generateAuthentication(req.user, Authentication).then(function (userData) {
                         res.send(userData);
                     }, function (err) {
                         res.send(400, err);
@@ -129,7 +129,8 @@ define([
 
     this.logout = {
         permissions: ['user'],
-        exec: function (req, res) {
+        models: ['authentication'],
+        exec: function (req, res, Authentication) {
             Authentication.findOne({
                 accessToken: req.user.accessToken
             }, function (err, authentication) {

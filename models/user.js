@@ -64,5 +64,8 @@ define([
 
     var UserModel = mongoose.model('User', User);
 
-    return UserModel;
+    return {
+        model: UserModel,
+        schema: User
+    };
 });

@@ -26,7 +26,6 @@ define(function () {
     return function (req, res, model, endpoint, isObjectRequest) {
         var action,
             params = req.params,
-            access = false,
             method = req.method.toLowerCase(),
             actionList;
 
@@ -87,7 +86,7 @@ define(function () {
             }
 
             // if user is allowed to do action
-            if (!access) {
+            if (!checkPermissions(req, action)) {
                 return res.send(403, 'permission_denied');
             }
             action.exec(req, res);

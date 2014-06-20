@@ -1,11 +1,34 @@
 define(function () {
+
+    function checkPermissions(req, action) {
+        var access = false,
+            i = 0;
+
+        // check if action has permissions.
+        if (action.permissions && action.permissions.length > 0) {
+            // check if token auth puts user object on req.user has permissions
+            if (req.user && req.user.permissions) {
+                // check if user has required permission by action
+                for (i; i < req.user.permissions.length; i = i + 1) {
+                    if (action.permissions.indexOf(req.user.permissions[i]) > -1) {
+                        access = true;
+                        break;
+                    }
+                }
+            }
+        } else {
+            access = true;
+        }
+
+        return access;
+    }
+
     return function (req, res, model, endpoint, isObjectRequest) {
         var action,
             params = req.params,
             access = false,
             method = req.method.toLowerCase(),
-            actionList,
-            i = 0;
+            actionList;
 
         if (!endpoint[params.version] || !endpoint[params.version][method]) {
             return res.send(404);
@@ -14,12 +37,15 @@ define(function () {
 
         // request has an objectid.
         if (isObjectRequest) {
-            if (!params.objectId) {
+            if (!params.objectid) {
                 return res.send(404, 'objectid_not_found');
             }
             // try to find object of class model.
-            model.findById(params.objectId, function (err, object) {
+            model.findById(params.objectid, function (err, object) {
                 if (err) {
+                    return res.send(404, err);
+                }
+                if (!object) {
                     return res.send(404, 'object_not_found');
                 }
                 // put object on req.object.
@@ -38,6 +64,11 @@ define(function () {
                     }
                     action = actionList.object;
                 }
+                if (!checkPermissions(req, action)) {
+                    return res.send(403, 'permission_denied');
+                }
+
+                action.exec(req, res);
             });
         } else {
             // if action is set
@@ -54,26 +85,12 @@ define(function () {
                 }
                 action = actionList[''];
             }
-        }
-        // check if action has permissions.
-        if (action.permissions && action.permissions.length > 0) {
-            // check if token auth puts user object on req.user has permissions
-            if (req.user && req.user.permissions) {
-                // check if user has required permission by action
-                for (i; i < req.user.permissions.length; i = i + 1) {
-                    if (action.permissions.indexOf(req.user.permissions[i]) > -1) {
-                        access = true;
-                        break;
-                    }
-                }
+
+            // if user is allowed to do action
+            if (!access) {
+                return res.send(403, 'permission_denied');
             }
-        } else {
-            access = true;
+            action.exec(req, res);
         }
-        // if user is allowed to do action
-        if (!access) {
-            return res.send(403, 'permission_denied');
-        }
-        action.exec(req, res);
     };
 });

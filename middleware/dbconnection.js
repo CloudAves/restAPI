@@ -6,7 +6,6 @@ define([
 ], function (dbconnectionHandler, log) {
     'use strict';
     return function (req, res, next, db) {
-
         if (db) {
             dbconnectionHandler.get(db, function (db) {
                 req.db = db;

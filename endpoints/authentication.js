@@ -89,38 +89,49 @@ define([
     };
 
     this.refresh = {
-        permissions: [appConfig.permissions.user],
-        models: ['Authentication'],
-        exec: function (req, res, Authentication) {
+        permissions: [],
+        models: ['authentication', 'user'],
+        exec: function (req, res, Authentication, User) {
+            var params = req.body;
+
+            if (!params.accessToken || !params.refreshToken) {
+                return res.send(400, {
+                    'error': 'missing_access_or_refresh_token'
+                });
+            }
+
             Authentication.findOne({
-                accessToken: req.user.accessToken,
-                userId: req.user.id,
-                secret: req.user.secret
+                accessToken: params.accessToken
             }, function (err, authentication) {
                 if (err) {
                     return res.send(err);
                 }
-                if (!authentication || !authentication.refreshToken) {
-                    res.send(403);
+                if (!authentication) {
+                    return res.send(403);
                 }
-                if (!req.body.refreshToken) {
+                if (authentication.refreshToken !== params.refreshToken) {
                     return res.send(400, {
-                        error: 'missing_refresh_token'
+                        error: 'invalid_refresh_token'
                     });
                 }
-                if (authentication.refreshToken !== req.body.refreshToken) {
-                    return res.send(400, {
-                        error: 'wrong_refresh_token'
-                    });
-                }
-                authentication.remove(function (err) {
-                    if (err) {
-                        return res.send(400, err);
+                User.findById(authentication.userId, function (usererr, user) {
+                    if (usererr) {
+                        return res.send(400, usererr);
                     }
-                    generateAuthentication(req.user, Authentication).then(function (userData) {
-                        res.send(userData);
-                    }, function (err) {
-                        res.send(400, err);
+                    if (!user) {
+                        return res.send(400, {
+                            error: 'user_not_found'
+                        });
+                    }
+                    authentication.remove(function (err) {
+                        if (err) {
+                            return res.send(400, err);
+                        }
+                        generateAuthentication(user, Authentication).then(function (userData) {
+                            res.send(userData);
+                        }, function (err) {
+                            res.send(400, err);
+                        });
                     });
                 });
             });

@@ -1,10 +1,16 @@
 define([
     'util/modelEndpointHandler',
-    'appConfig'
-], function (modelEndpointHandler, appConfig) {
+    'databaseConfig',
+    'appConfig',
+    'middleware/dbconnection',
+    'node-promise'
+], function (modelEndpointHandler, databaseConfig, appConfig, dbconnection, promise) {
+    var Promise = promise.Promise;
 
-    function checkPermissions(req, action) {
-        var access = false,
+
+    function checkPermissions(req, res, action) {
+        var q = new Promise(),
+            access = false,
             i = 0;
 
         // check if action has permissions.
@@ -14,20 +20,34 @@ define([
                 // check if user has required permission by action
                 for (i; i < req.user.permissions.length; i = i + 1) {
                     if (action.permissions.indexOf(req.user.permissions[i]) > -1) {
+                        q.resolve();
                         access = true;
                         break;
                     }
                 }
                 // special grant für system admin
-                if (!access && req.user.permissions.indexOf(appConfig.permissions.sysadmin) > -1) {
-                    access = true;
+                if (!access && req.params.db !== databaseConfig.system && req.user.permissions.indexOf(appConfig.permissions.sysadmin) > -1) {
+                    dbconnection(req, res, function () {
+                        modelEndpointHandler.initDb(req, res, ['authentication'], function (req, res, Authentication) {
+                            Authentication.findOne({
+                                accessToken: req.user.accessToken
+                            }, function (err, authentication) {
+                                if (err || !authentication) {
+                                    return q.reject();
+                                }
+                                return q.resolve();
+                            });
+                        });
+                    }, databaseConfig.system);
                 }
+            } else {
+                q.reject();
             }
         } else {
-            access = true;
+            q.resolve();
         }
 
-        return access;
+        return q;
     }
 
     return function (req, res, endpoint, isObjectRequest) {
@@ -46,36 +66,39 @@ define([
             if (!params.objectid) {
                 return res.send(404, 'objectid_not_found');
             }
-            // try to find object of class model.
-            modelEndpointHandler.initDb(req, res, params.classname, function (req, res, model) {
-                model.findById(params.objectid, function (err, object) {
-                    if (err) {
-                        return res.send(404, err);
-                    }
-                    if (!object) {
-                        return res.send(404, 'object_not_found');
-                    }
-                    // put object on req.object.
-                    req.object = object;
-                    // if there is special action.
-                    if (params.action) {
-                        // check if action exists.
-                        if (!actionList[params.action]) {
-                            return res.send(404, 'action_not_found');
+            // if there is special action.
+            if (params.action) {
+                // check if action exists.
+                if (!actionList[params.action]) {
+                    return res.send(404, 'action_not_found');
+                }
+                action = actionList[params.action];
+            } else {
+                // load default object action 'object'.
+                if (!actionList.object) {
+                    return res.send(404, 'action_not_found');
+                }
+                action = actionList.object;
+            }
+
+            // check if user has correct permissions or it is a system user
+            checkPermissions(req, res, action).then(function () {
+                // try to find object of class model.
+                modelEndpointHandler.initDb(req, res, params.classname, function (req, res, model) {
+                    model.findById(params.objectid, function (err, object) {
+                        if (err) {
+                            return res.send(404, err);
                         }
-                        action = actionList[params.action];
-                    } else {
-                        // load default object action 'object'.
-                        if (!actionList.object) {
-                            return res.send(404, 'action_not_found');
+                        if (!object) {
+                            return res.send(404, 'object_not_found');
                         }
-                        action = actionList.object;
-                    }
-                    if (!checkPermissions(req, action)) {
-                        return res.send(403, 'permission_denied');
-                    }
-                    modelEndpointHandler.initDb(req, res, action.models, action.exec);
+                        // put object on req.object.
+                        req.object = object;
+                        modelEndpointHandler.initDb(req, res, action.models, action.exec);
+                    });
                 });
+            }, function () {
+                return res.send(403, 'permission_denied');
             });
         } else {
             // if action is set
@@ -92,12 +115,12 @@ define([
                 }
                 action = actionList[''];
             }
-
-            // if user is allowed to do action
-            if (!checkPermissions(req, action)) {
+            // check if user has correct permissions or it is a system user
+            checkPermissions(req, res, action).then(function () {
+                modelEndpointHandler.initDb(req, res, action.models, action.exec);
+            }, function () {
                 return res.send(403, 'permission_denied');
-            }
-            modelEndpointHandler.initDb(req, res, action.models, action.exec);
+            });
         }
     };
 });

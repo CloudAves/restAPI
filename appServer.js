@@ -42,7 +42,7 @@ define([
         //app.use(express.static(path.join(application_root, 'public'))); // static file server
         app.use(errorHandler({ dumpExceptions: true, showStack: true })); // error stacks
         app.param('db', dbconnection); // use dbconnection cache
-        app.use(authentication); // use authentication middleware
+        app.param('classname', authentication); // use authentication middleware
 
         // Launch server
         var server = app.listen(appConfig.port, function () {

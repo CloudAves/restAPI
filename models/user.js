@@ -66,6 +66,6 @@ define([
 
     return {
         model: UserModel,
-        schema: User
+        schema: User,
     };
 });

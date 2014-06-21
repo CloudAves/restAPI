@@ -41,7 +41,6 @@ define([
         models: ['user'],
         exec: function (req, res, User) {
             User.find({}, function (err, users) {
-                console.log('test');
                 if (err) {
                     return res.send(400, err);
                 }

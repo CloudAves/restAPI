@@ -28,30 +28,24 @@ define([
         try {
             // verify token
             jwt.verify(token, appConfig.secret, function (err, decoded) {
-                if (err) {
-                    modelEndpointHandler.initDB(req, res, ['authentication'], function (req, res, Authentication) {
-                        // expired or invalid token -> check if it exists in database
-                        Authentication.findOne({
-                            accessToken: token
-                        }, function (err, authentication) {
-                            if (err) {
-                                return next();
-                            }
-                            // if it exists -> delete it
-                            if (!authentication) {
-                                return next();
-                            }
-                            authentication.remove(function () {
-                                next();
-                            });
-                        });
+                modelEndpointHandler.initDb(req, res, ['authentication'], function (req, res, Authentication) {
+                    Authentication.findOne({
+                        accessToken: token
+                    }, function (error, authentication) {
+                        if (!authentication || error) {
+                            return next();
+                        }
+                        // no expired or invalid token
+                        if (!err) {
+                            // everything works -> put decoded user on req.
+                            req.user = decoded;
+                            req.user.accessToken = token;
+                            return next();
+                        }
+
+                        return next();
                     });
-                } else {
-                    // everything works -> put decoded user on req.
-                    req.user = decoded;
-                    req.user.accessToken = token;
-                    next();
-                }
+                });
             });
         } catch (e) {
             res.send(400, {

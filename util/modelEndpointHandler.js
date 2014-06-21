@@ -1,8 +1,9 @@
 define([
     'node-promise',
     'fs',
-    'log'
-], function (promise, fs, log) {
+    'log',
+    'databaseConfig',
+], function (promise, fs, log, databaseConfig) {
     var Promise = promise.Promise;
 
     var endpoints = {},
@@ -55,6 +56,9 @@ define([
             if (db && requiredModels) {
                 for (i; i <= requiredModels.length; i++) {
                     if (models[requiredModels[i]] && models[requiredModels[i]].schema) {
+                        if ((models[requiredModels[i]].systemdb && req.db.db.name !== databaseConfig.systemdb) || (models[requiredModels[i]].systemdb !== undefined && !models[requiredModels[i]].systemdb && req.db.db.name === databaseConfig.systemdb)) {
+                            return res.send(403);
+                        }
                         initModels.push(db.model(requiredModels[i], models[requiredModels[i]].schema));
                     }
                 }

@@ -17,14 +17,20 @@ config -> db, app, require, logging configs
 endpoints -> rest endpoints
 models -> db models (schema and model)
 
-Model & Endpoints
+Models & Endpoints
 =================
 * For each model an endpoint file with the same name must exist
 * on startup all models are loaded and for all models the entpoint file
 * model registers the mongoose model with its schema
-* endpoint file returns an object with keys for each method (post, get, put, delete) as values another object with keys '', 'object', '{actionname}'. '' stands for request without objectid like '/api/user'. 'object' for a object call like '/api/user/:id' where the object is placed automatically on req.object. '{actionname}' could be used if the default methods are not enough for any purpose like GET '/api/user/id/:id/rating' or GET '/api/user/activeOnes'.
+* versioning
+* multidb support: '/api/:version/:database/:classname/id/:id/:action'
+* endpoint file returns an object with keys for each method (post, get, put, delete) as values another object with keys '', 'object', '{actionname}'. '' stands for request without objectid like '/api/user'. 'object' for a object call like '/api/v1/restAPI/user/:id' where the object is placed automatically on req.object. '{actionname}' could be used if the default methods are not enough for any purpose like GET '/api/v1/restAPI/user/id/:id/rating' or GET '/api/v1/restAPI/user/activeOnes'.
+* additional systemdb for managing/monitoring purposes (or if you need a backoffice for other dbs)
+* a model returns mongoose schema, mongo model, and optionally systemdb flag (systemdb: true -> this model is only für systemdb, systemdb: false -> only for the other dbs, not set -> for otherdbs and systemdb)
 
 Next steps
 ==========
-* check if object urls work
-* multidb with db caching
+* check if requested db exists
+* grunt to install/reinstall (add systemdb with default sysadmin) demo db with demo user, init db, startdb, start server
+* testcases -> travisCI
+* grunt task for db backup (export/import)

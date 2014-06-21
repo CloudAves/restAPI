@@ -27,5 +27,5 @@
         "supertest": "0.13.0",
         "grunt-mocha-test": "0.11.0"
     },
-    "engine": "node >= 0.10.28"
+    "engine": "node >= 0.10.29"
 }

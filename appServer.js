@@ -56,7 +56,6 @@ define([
 
         // set generic provided api class urls
         app.all('/api/:version/:db/:classname/:action?', execAction);
-
         // set generic provided api object urls
         app.all('/api/:version/:db/:classname/id/:objectid/:action?', execAction);
 

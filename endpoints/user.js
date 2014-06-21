@@ -1,8 +1,10 @@
-define(function () {
+define([
+    'appConfig'
+], function (appConfig) {
 
     // get current logged in user
     this.account = {
-        permissions: ['user'],
+        permissions: [appConfig.permissions.user],
         exec: function (req, res) {
             if (!req.user) {
                 return res.send(403);
@@ -50,7 +52,7 @@ define(function () {
 
     // register
     this.register = {
-        models: ['user'],
+        models: [appConfig.permissions.user],
         exec: function (req, res, User) {
             var params = req.body,
                 user;

@@ -1,8 +1,8 @@
 define([
     'jsonwebtoken',
     'appConfig',
-    'models/authentication'
-], function (jwt, appConfig, Authentication) {
+    'util/modelEndpointHandler'
+], function (jwt, appConfig, modelEndpointHandler) {
     return function (req, res, next) {
         var token,
             parts,
@@ -29,19 +29,21 @@ define([
             // verify token
             jwt.verify(token, appConfig.secret, function (err, decoded) {
                 if (err) {
-                    // expired or invalid token -> check if it exists in database
-                    Authentication.findOne({
-                        accessToken: token
-                    }, function (err, authentication) {
-                        if (err) {
-                            return next();
-                        }
-                        // if it exists -> delete it
-                        if (!authentication) {
-                            return next();
-                        }
-                        authentication.remove(function () {
-                            next();
+                    modelEndpointHandler.initDB(req, res, ['authentication'], function (req, res, Authentication) {
+                        // expired or invalid token -> check if it exists in database
+                        Authentication.findOne({
+                            accessToken: token
+                        }, function (err, authentication) {
+                            if (err) {
+                                return next();
+                            }
+                            // if it exists -> delete it
+                            if (!authentication) {
+                                return next();
+                            }
+                            authentication.remove(function () {
+                                next();
+                            });
                         });
                     });
                 } else {

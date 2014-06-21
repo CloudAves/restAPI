@@ -1,6 +1,7 @@
 define([
-    'util/modelEndpointHandler'
-], function (modelEndpointHandler) {
+    'util/modelEndpointHandler',
+    'appConfig'
+], function (modelEndpointHandler, appConfig) {
 
     function checkPermissions(req, action) {
         var access = false,
@@ -16,6 +17,10 @@ define([
                         access = true;
                         break;
                     }
+                }
+                // special grant für system admin
+                if (!access && req.user.permissions.indexOf(appConfig.permissions.sysadmin) > -1) {
+                    access = true;
                 }
             }
         } else {

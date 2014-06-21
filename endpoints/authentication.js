@@ -89,7 +89,7 @@ define([
     };
 
     this.refresh = {
-        permissions: ['user'],
+        permissions: [appConfig.permissions.user],
         models: ['Authentication'],
         exec: function (req, res, Authentication) {
             Authentication.findOne({
@@ -128,7 +128,7 @@ define([
     };
 
     this.logout = {
-        permissions: ['user'],
+        permissions: [appConfig.permissions.user],
         models: ['authentication'],
         exec: function (req, res, Authentication) {
             Authentication.findOne({

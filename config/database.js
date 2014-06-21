@@ -10,6 +10,7 @@ define(function () {
         host: 'localhost',
         port: '20674',
         maxConnections: 20,
-        authdb: 'admin'
+        authdb: 'admin',
+        system: 'system'
     };
 });

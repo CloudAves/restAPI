@@ -1,7 +1,8 @@
 define([
     'mongoose',
-    'crypto'
-], function (mongoose, crypto) {
+    'crypto',
+    'appConfig'
+], function (mongoose, crypto, appConfig) {
     'use strict';
 
     var Schema = mongoose.Schema;
@@ -32,7 +33,7 @@ define([
         },
         permissions: {
             type: [String],
-            'default': ['user']
+            'default': [appConfig.permissions.user]
         },
         resetpassword: {
             type: String,

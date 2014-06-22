@@ -25,6 +25,43 @@ define([
         return filePromise;
     }
 
+    function clearModel(model) {
+        var prom = new Promise();
+
+        model.collection.dropAllIndexes(function (err) {
+            log.info(model.modelName + ': dropAllIndexes');
+            if (err) {
+                prom.reject(err);
+            } else {
+                model.remove(function (err) {
+                    if (err) {
+                        prom.reject(err);
+                    } else {
+                        log.info(model.modelName + ': drop');
+                        prom.resolve();
+                    }
+                });
+            }
+        });
+
+        return prom;
+    }
+
+    function clearModels(models) {
+        var tasks = [],
+            key,
+            model;
+
+        for (key in models) {
+            if (models.hasOwnProperty(key)) {
+                model = models[key];
+                tasks.push(clearModel(model));
+            }
+        }
+
+        return tasks;
+    }
+
     // load all models (in src/models) and the associated endpoint
     return {
         load: function () {
@@ -67,6 +104,31 @@ define([
             initModels.unshift(req);
 
             callback.apply(undefined, initModels);
+        },
+
+        // init models for db without request (static loader)
+        init: function (db, callback) {
+            var i,
+                initModels = {};
+            if (db) {
+                for (i in models) {
+                    if (models.hasOwnProperty(i) && models[i].schema) {
+                        if (!(models[i].systemdb && db.db.name !== databaseConfig.systemdb) && !(models[i].systemdb !== undefined && !models[i].systemdb && db.db.name === databaseConfig.systemdb)) {
+                            initModels[models[i].model.modelName] = db.model(models[i].model.modelName, models[i].schema);
+                        }
+                    }
+                }
+            }
+
+            callback(initModels);
+        },
+
+        clearModels: function (models) {
+            var newPromise = new Promise();
+
+            promise.all(clearModels(models)).then(newPromise.resolve, newPromise.reject);
+
+            return newPromise;
         }
     };
 });

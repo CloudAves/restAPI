@@ -11,7 +11,7 @@ define(function () {
         port: '20674',
         maxConnections: 20,
         authdb: 'admin',
-        systemdb: 'system',
+        systemdb: 'sys',
         dbpath: 'static/db/'
     };
 });

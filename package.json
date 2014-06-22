@@ -20,12 +20,16 @@
         "mongoose-schema-extend": "0.1.7",
         "grunt": "0.4.5",
         "grunt-cli": "0.1.13",
-        "jsonwebtoken": "*"
+        "grunt-exec": "*",
+        "grunt-contrib-clean": "*",
+        "jsonwebtoken": "*",
+        "mkdirp": "*"
     },
     "devDependencies": {
         "expect.js": "0.3.1",
         "supertest": "0.13.0",
-        "grunt-mocha-test": "0.11.0"
+        "grunt-mocha-test": "0.11.0",
+        "grunt-istanbul": "*"
     },
     "engine": "node >= 0.10.29"
 }

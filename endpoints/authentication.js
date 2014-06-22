@@ -74,6 +74,11 @@ define([
                         error: 'user_not_found'
                     });
                 }
+                if (!user) {
+                    return res.send(400, {
+                        error: 'user_not_exists'
+                    });
+                }
                 if (!user.checkPassword(req.body.password)) {
                     return res.send({
                         error: 'invalid_login_password_combination'

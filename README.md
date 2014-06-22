@@ -30,7 +30,5 @@ Models & Endpoints
 
 Next steps
 ==========
-* check if requested db exists
-* grunt to install/reinstall (add systemdb with default sysadmin) demo db with demo user, init db, startdb, start server
-* testcases -> travisCI
+* testcases -> travisCI, coverage
 * grunt task for db backup (export/import)

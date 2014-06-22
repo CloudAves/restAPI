@@ -37,7 +37,7 @@ define([
 
     // get userlist
     this.userlist = {
-        permissions: [],
+        permissions: [appConfig.permissions.sysadmin, appConfig.permissions.admin],
         models: ['user'],
         exec: function (req, res, User) {
             User.find({}, function (err, users) {

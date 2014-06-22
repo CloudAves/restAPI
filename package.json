@@ -23,7 +23,8 @@
         "grunt-exec": "*",
         "grunt-contrib-clean": "*",
         "jsonwebtoken": "*",
-        "mkdirp": "*"
+        "mkdirp": "*",
+        "underscore": "*"
     },
     "devDependencies": {
         "expect.js": "0.3.1",

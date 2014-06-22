@@ -1,16 +1,12 @@
 define([
     'util/modelEndpointHandler',
-    'databaseConfig',
-    'appConfig',
-    'middleware/dbconnection',
     'node-promise'
-], function (modelEndpointHandler, databaseConfig, appConfig, dbconnection, promise) {
+], function (modelEndpointHandler, promise) {
     var Promise = promise.Promise;
 
 
     function checkPermissions(req, res, action) {
         var q = new Promise(),
-            access = false,
             i = 0;
 
         // check if action has permissions.
@@ -21,24 +17,8 @@ define([
                 for (i; i < req.user.permissions.length; i = i + 1) {
                     if (action.permissions.indexOf(req.user.permissions[i]) > -1) {
                         q.resolve();
-                        access = true;
                         break;
                     }
-                }
-                // special grant für system admin
-                if (!access && req.params.db !== databaseConfig.system && req.user.permissions.indexOf(appConfig.permissions.sysadmin) > -1) {
-                    dbconnection(req, res, function () {
-                        modelEndpointHandler.initDb(req, res, ['authentication'], function (req, res, Authentication) {
-                            Authentication.findOne({
-                                accessToken: req.user.accessToken
-                            }, function (err, authentication) {
-                                if (err || !authentication) {
-                                    return q.reject();
-                                }
-                                return q.resolve();
-                            });
-                        });
-                    }, databaseConfig.system);
                 }
             } else {
                 q.reject();

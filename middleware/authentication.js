@@ -1,12 +1,16 @@
 define([
     'jsonwebtoken',
     'appConfig',
-    'util/modelEndpointHandler'
-], function (jwt, appConfig, modelEndpointHandler) {
+    'databaseConfig',
+    'util/modelEndpointHandler',
+    'middleware/dbconnection',
+    'underscore'
+], function (jwt, appConfig, databaseConfig, modelEndpointHandler, dbconnection, _) {
     return function (req, res, next) {
         var token,
             parts,
             scheme,
+            capseledRequest = {},
             credentials;
 
         // extract bearer token if it is set in headers authorization
@@ -28,26 +32,49 @@ define([
         try {
             // verify token
             jwt.verify(token, appConfig.secret, function (err, decoded) {
-                modelEndpointHandler.initDb(req, res, ['authentication'], function (req, res, Authentication) {
-                    Authentication.findOne({
-                        accessToken: token
-                    }, function (error, authentication) {
-                        if (!authentication || error) {
-                            return next();
-                        }
-                        // no expired or invalid token
-                        if (!err) {
+                if (err) {
+                    return next();
+                }
+
+                // try to access other db with sysuser.
+                if (decoded && decoded.permissions && decoded.permissions.indexOf(appConfig.permissions.sysadmin) > -1 && req.db.db.name !== databaseConfig.systemdb) {
+                    // special grant für system admin
+                    _.extend(capseledRequest, req);
+                    dbconnection(capseledRequest, res, function () {
+                        modelEndpointHandler.initDb(capseledRequest, res, ['authentication'], function (newReq, res, Authentication) {
+                            Authentication.findOne({
+                                accessToken: token
+                            }, function (error, authentication) {
+                                dbconnection(req, res, function () {
+                                    if (error || !authentication) {
+                                        return next();
+                                    }
+                                    // everything works sysadmin is logged in -> put decoded user on req.
+                                    req.user = decoded;
+                                    req.user.accessToken = token;
+                                    return next();
+                                }, req.db.name);
+                            });
+                        });
+                    }, databaseConfig.systemdb);
+                } else {
+                    modelEndpointHandler.initDb(req, res, ['authentication'], function (req, res, Authentication) {
+                        Authentication.findOne({
+                            accessToken: token
+                        }, function (error, authentication) {
+                            if (!authentication || error) {
+                                return next();
+                            }
                             // everything works -> put decoded user on req.
                             req.user = decoded;
                             req.user.accessToken = token;
                             return next();
-                        }
-
-                        return next();
+                        });
                     });
-                });
+                }
             });
         } catch (e) {
+            console.log(e);
             res.send(400, {
                 error: 'invalid_access_token'
             });

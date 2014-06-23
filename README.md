@@ -5,15 +5,14 @@ NodeJS API + crypto + token authentication + multidbsupport
 
 install
 =======
-1. install nodejs 
-1a. `sudo apt-get update
-sudo apt-get install -y gcc g++ make
-wget http://nodejs.org/dist/node-latest.tar.gz
-tar -xzvf node-latest.tar.gz
-cd [CREATED NODE DIR]
-./configure
-make
-sudo make install`
+1. install nodejs (`sudo apt-get update`
+`sudo apt-get install -y gcc g++ make`
+`wget http://nodejs.org/dist/node-latest.tar.gz`
+`tar -xzvf node-latest.tar.gz`
+`cd [CREATED NODE DIR]`
+`./configure`
+`make`
+`sudo make install`
 2. install mongodb
 3. run npm install to install all dependencies
 4. set configs in ./config

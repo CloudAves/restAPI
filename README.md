@@ -19,11 +19,15 @@ install
 3. clone repo & go in directory
 4. run npm install to install all dependencies (run `npm install -g grunt-cli`) afterwards
 5. set configs in ./config
-6. run `grunt exec:createMongoUsers` // creates mongo users to restrict access
-7. run `grunt exec:startDB` // start mongo session with authentication
-8. run `grunt initSystem -username [sysusername] -password [syspassword] -email [sysemail]` // creates systemdb with sysuser
-9. run `grunt reinstall` // creates/recreates test endpoint db 'test' with test data (user, admin, ...) accepts '-target' flag to allow to create a new db with testdata
-10. run `grunt` or `grunt start` to start nodejs server
+6. start mongo with your port and dbpath set in config (`mongod --dbpath [dbpath] --port [port]`)
+7. in a new terminal tab run `grunt exec:createMongoUsers` // creates mongo users to restrict access
+8. run `grunt exec:killDB` // stops all mongo services
+9. run `grunt exec:startDB` // start mongo session with authentication
+10. run `grunt initSystem -username [sysusername] -password [syspassword] -email [sysemail]` // creates systemdb with sysuser
+11. run `grunt reinstall` // creates/recreates test endpoint db 'test' with test data (user, admin, ...) accepts '-target' flag to allow to create a new db with testdata
+12. run `grunt` or `grunt start` to start nodejs server
+
+After you have configured your mongo (you only need grunt reinstal and grunt)
 
 Doc
 ===

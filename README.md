@@ -17,7 +17,7 @@ install
 2. install mongodb
 `apt-get install mongodb`
 3. clone repo & go in directory
-4. run npm install to install all dependencies
+4. run npm install to install all dependencies (run `npm install -g grunt-cli`) afterwards
 5. set configs in ./config
 6. run `grunt exec:createMongoUsers` // creates mongo users to restrict access
 7. run `grunt exec:startDB` // start mongo session with authentication

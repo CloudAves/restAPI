@@ -12,7 +12,7 @@ install
 5. run `grunt exec:createMongoUsers` // creates mongo users to restrict access
 6. run `grunt exec:startDB` // start mongo session with authentication
 7. run `grunt initSystem -username [sysusername] -password [syspassword] -email [sysemail]` // creates systemdb with sysuser
-8. run `grunt reinstall` // creates/recreates test endpoint db 'test' with test data (user, admin, ...)
+8. run `grunt reinstall` // creates/recreates test endpoint db 'test' with test data (user, admin, ...) accepts '-target' flag to allow to create a new db with testdata
 9. run `grunt` or `grunt start` to start nodejs server
 
 Doc

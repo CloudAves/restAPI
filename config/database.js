@@ -9,7 +9,7 @@ define(function () {
         admin: 'administrator',
         adminpassword: '34jvrp43Wd',
         dbname: 'restAPI',
-        host: 'localhost',
+        host: '127.0.0.1',
         port: '20674',
         maxConnections: 20,
         authdb: 'admin',

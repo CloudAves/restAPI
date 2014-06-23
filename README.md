@@ -13,14 +13,17 @@ install
 `./configure`
 `make`
 `sudo make install`
+`curl https://www.npmjs.org/install.sh | sh`
 2. install mongodb
-3. run npm install to install all dependencies
-4. set configs in ./config
-5. run `grunt exec:createMongoUsers` // creates mongo users to restrict access
-6. run `grunt exec:startDB` // start mongo session with authentication
-7. run `grunt initSystem -username [sysusername] -password [syspassword] -email [sysemail]` // creates systemdb with sysuser
-8. run `grunt reinstall` // creates/recreates test endpoint db 'test' with test data (user, admin, ...) accepts '-target' flag to allow to create a new db with testdata
-9. run `grunt` or `grunt start` to start nodejs server
+`apt-get install mongodb`
+3. clone repo & go in directory
+4. run npm install to install all dependencies
+5. set configs in ./config
+6. run `grunt exec:createMongoUsers` // creates mongo users to restrict access
+7. run `grunt exec:startDB` // start mongo session with authentication
+8. run `grunt initSystem -username [sysusername] -password [syspassword] -email [sysemail]` // creates systemdb with sysuser
+9. run `grunt reinstall` // creates/recreates test endpoint db 'test' with test data (user, admin, ...) accepts '-target' flag to allow to create a new db with testdata
+10. run `grunt` or `grunt start` to start nodejs server
 
 Doc
 ===

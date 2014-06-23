@@ -1,0 +1,14 @@
+language: node_js
+services: mongodb
+node_js:
+  - "0.10.29"
+before_install: npm install -g grunt-cli
+install: npm install
+before_script: 
+  - grunt exec:startFirstDB
+  - grunt exec:createMongoUsers
+  - grunt exec:killDB
+  - grunt exec:startDB
+  - grunt initSystem
+  - grunt reinstall
+script: grunt mocha

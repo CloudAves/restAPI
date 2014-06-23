@@ -40,6 +40,10 @@ module.exports = function (grunt) {
                 command: 'killall mongod || true'
             },
 
+            startFirstDB: {
+                command: 'mongod -dbpath=' + DBPATH + ' -port=' + dbconfig.port + ' &'
+            },
+
             startDB: {
                 command: 'mongod -dbpath=' + DBPATH + ' -port=' + dbconfig.port + ' --auth &',
                 stdout: true,

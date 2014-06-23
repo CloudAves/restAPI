@@ -1,13 +1,19 @@
 restAPI
 =======
 
-NodeJS API + crypto + token authentication
+NodeJS API + crypto + token authentication + multidbsupport
 
 install
 =======
-1. install mongodb
-2. run npm install to install all dependencies
-3. set configs in ./config
+1. install nodejs
+2. install mongodb
+3. run npm install to install all dependencies
+4. set configs in ./config
+5. run `grunt exec:createMongoUsers` // creates mongo users to restrict access
+6. run `grunt exec:startDB` // start mongo session with authentication
+7. run `grunt initSystem -username [sysusername] -password [syspassword] -email [sysemail]` // creates systemdb with sysuser
+8. run `grunt reinstall` // creates/recreates test endpoint db 'test' with test data (user, admin, ...)
+9. run `grunt` or `grunt start` to start nodejs server
 
 Doc
 ===

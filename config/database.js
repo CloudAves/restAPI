@@ -6,6 +6,8 @@ define(function () {
     return {
         username: 'punch',
         password: 'lyerWynMea',
+        admin: 'administrator',
+        adminpassword: '34jvrp43Wd',
         dbname: 'restAPI',
         host: 'localhost',
         port: '20674',

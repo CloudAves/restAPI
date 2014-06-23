@@ -37,7 +37,10 @@ define([
         }
 
         // Config
-        app.use(bodyParser());
+        app.use(bodyParser.json());
+        app.use(bodyParser.urlencoded({
+            extended: true
+        }));
         app.use(methodOverride()); // HTTP PUT and DELETE support
         //app.use(express.static(path.join(application_root, 'public'))); // static file server
         app.use(errorHandler({ dumpExceptions: true, showStack: true })); // error stacks

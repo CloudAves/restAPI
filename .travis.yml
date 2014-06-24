@@ -7,9 +7,10 @@ install: npm install
 before_script: 
   - grunt exec:killDB
   - grunt exec:startFirstDB
-  - grunt exec:createMongoUsers -username test -password test -test test@test.com
+  - sleep 15
+  - grunt exec:createMongoUsers
   - grunt exec:killDB
   - grunt exec:startDB
-  - grunt initSystem
+  - grunt initSystem -username test -password test -test test@test.com
   - grunt reinstall
 script: grunt mocha

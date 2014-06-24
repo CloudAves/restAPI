@@ -33,19 +33,19 @@ module.exports = function (grunt) {
 
         exec: {
             createMongoUsers: {
-                command: 'mongo ' + dbconfig.host + ':' + dbconfig.port + ' --eval "var host=\'' + dbconfig.host + '\', port=\'' + dbconfig.port + '\', admin=\'' + dbconfig.admin + '\', adminpassword=\'' + dbconfig.adminpassword + '\', user=\'' + dbconfig.username + '\', password=\'' + dbconfig.password + '\';" util/createmongouser.js'
+                command: 'sudo mongo ' + dbconfig.host + ':' + dbconfig.port + ' --eval "var host=\'' + dbconfig.host + '\', port=\'' + dbconfig.port + '\', admin=\'' + dbconfig.admin + '\', adminpassword=\'' + dbconfig.adminpassword + '\', user=\'' + dbconfig.username + '\', password=\'' + dbconfig.password + '\';" util/createmongouser.js'
             },
 
             killDB: {
-                command: 'killall mongod || true'
+                command: 'sudo killall mongod || true'
             },
 
             startFirstDB: {
-                command: 'mongod --dbpath=' + DBPATH + ' --port=' + dbconfig.port + ' &'
+                command: 'sudo mongod --dbpath=' + DBPATH + ' --port=' + dbconfig.port + ' &'
             },
 
             startDB: {
-                command: 'mongod --dbpath=' + DBPATH + ' --port=' + dbconfig.port + ' --auth &',
+                command: 'sudo mongod --dbpath=' + DBPATH + ' --port=' + dbconfig.port + ' --auth &',
                 stdout: true,
                 stderr: true
             },

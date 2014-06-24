@@ -28,7 +28,7 @@ install
 11. run `grunt reinstall` // creates/recreates test endpoint db 'test' with test data (user, admin, ...) accepts '-target' flag to allow to create a new db with testdata
 12. run `grunt` or `grunt start` to start nodejs server
 
-After you have configured your mongo (you only need grunt reinstal and grunt)
+After you have configured your mongo (you only need grunt reinstall and grunt)
 
 Doc
 ===
@@ -51,5 +51,6 @@ Models & Endpoints
 
 Next steps
 ==========
-* testcases -> travisCI, coverage
+* endpoint documentation
+* testcases
 * grunt task for db backup (export/import)

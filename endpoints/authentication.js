@@ -193,8 +193,8 @@ define([
     };
 
     /**
-     * @function refresh
-     * @description Refreshs access/refresh token for a user
+     * @function logout
+     * @description Logout
      * @property /api/[version]/[database]/authentication/logout - url
      * @property {GET} Method - request method
      * @property Authorization - set request header Authorization: TOKENTYPE ACCESSTOKEN

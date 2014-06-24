@@ -1,4 +1,4 @@
-restAPI
+restAPI [![Build Status](https://travis-ci.org/KillerCodeMonkey/restAPI.svg?branch=master)](https://travis-ci.org/KillerCodeMonkey/restAPI)
 =======
 
 NodeJS API + crypto + token authentication + multidbsupport

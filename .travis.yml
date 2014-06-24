@@ -7,7 +7,7 @@ install: npm install
 before_script: 
   - grunt exec:killDB
   - grunt exec:startFirstDB
-  - sleep 15
+  - sleep 30
   - grunt exec:createMongoUsers
   - grunt exec:killDB
   - grunt exec:startDB

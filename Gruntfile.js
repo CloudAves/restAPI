@@ -59,7 +59,10 @@ module.exports = function (grunt) {
             },
 
             doc: {
-                command: 'jsdoc endpoints/*.js -d docs'
+                command: [
+                    'rm -rf docs',
+                    'jsdoc endpoints/*.js -d docs'
+                ].join('&&')
             }
         },
 

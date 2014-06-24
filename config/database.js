@@ -10,7 +10,7 @@ define(function () {
         adminpassword: '34jvrp43Wd',
         dbname: 'restAPI',
         host: '127.0.0.1',
-        port: '20674',
+        port: '27017',
         maxConnections: 20,
         authdb: 'admin',
         systemdb: 'sys',

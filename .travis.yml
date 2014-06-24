@@ -7,7 +7,7 @@ install: npm install
 before_script: 
   - grunt exec:killDB
   - grunt exec:startFirstDB
-  - travis_retry "grunt exec:createMongoUsers -username test -password test -test test@test.com"
+  - grunt exec:createMongoUsers -username test -password test -test test@test.com
   - grunt exec:killDB
   - grunt exec:startDB
   - grunt initSystem

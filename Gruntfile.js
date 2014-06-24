@@ -70,7 +70,8 @@ module.exports = function (grunt) {
         },
 
         clean: {
-            db: ['static/' + db]
+            db: ['static/' + db],
+            mongo: [DBPATH]
         }
     });
 
@@ -148,9 +149,9 @@ module.exports = function (grunt) {
         var flags = grunt.option.flags();
         var params = buildParams(flags);
 
-        if (!params.username || !params.email || !params.password) {
-            return new Error('Missing username, email or password');
-        }
+        params.username = params.username || 'test';
+        params.email = params.email || 'test@test.com';
+        params.password = params.password || '1234';
 
         var done = this.async();
         System.createSystem(params.email, params.username, params.password).then(function () {

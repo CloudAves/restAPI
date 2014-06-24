@@ -41,11 +41,11 @@ module.exports = function (grunt) {
             },
 
             startFirstDB: {
-                command: 'mongod -dbpath=' + DBPATH + ' -port=' + dbconfig.port + ' &'
+                command: 'mongod --dbpath=' + DBPATH + ' --port=' + dbconfig.port + ' &'
             },
 
             startDB: {
-                command: 'mongod -dbpath=' + DBPATH + ' -port=' + dbconfig.port + ' --auth &',
+                command: 'mongod --dbpath=' + DBPATH + ' --port=' + dbconfig.port + ' --auth &',
                 stdout: true,
                 stderr: true
             },

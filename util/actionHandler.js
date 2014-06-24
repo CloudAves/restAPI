@@ -2,6 +2,8 @@ define([
     'util/modelEndpointHandler',
     'node-promise'
 ], function (modelEndpointHandler, promise) {
+    'use strict';
+
     var Promise = promise.Promise;
 
 

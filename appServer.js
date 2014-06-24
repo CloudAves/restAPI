@@ -8,11 +8,12 @@ define([
     'util/actionHandler',
     'util/modelEndpointHandler',
     'middleware/authentication',
-    'middleware/dbconnection',
+    'middleware/dbconnection'
 ], function (express, bodyParser, methodOverride, errorHandler, log, appConfig, actionHandler, modelEndpointHandler, authentication, dbconnection) {
     'use strict';
 
-    var app = express();
+    var app = express(),
+        server;
 
     // load models and endpoints
     modelEndpointHandler.load().then(function (results) {
@@ -48,7 +49,7 @@ define([
         app.param('classname', authentication); // use authentication middleware
 
         // Launch server
-        var server = app.listen(appConfig.port, function () {
+        server = app.listen(appConfig.port, function () {
             log.info('Listening on port %d', server.address().port);
         });
 

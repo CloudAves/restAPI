@@ -56,6 +56,10 @@ module.exports = function (grunt) {
 
             cover: {
                 command: 'istanbul cover grunt tests --hook-run-in-context'
+            },
+
+            doc: {
+                command: 'jsdoc endpoints/*.js -d docs'
             }
         },
 
@@ -67,6 +71,15 @@ module.exports = function (grunt) {
                 }
             }
 
+        },
+
+        jsdoc : {
+            dist : {
+                src: ['endpoints/*.js'],
+                options: {
+                    destination: 'doc'
+                }
+            }
         },
 
         clean: {

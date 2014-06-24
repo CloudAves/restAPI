@@ -1,9 +1,11 @@
 define([
     'appConfig'
 ], function (appConfig) {
+    'use strict';
+    var rest = {};
 
     // get current logged in user
-    this.account = {
+    rest.account = {
         permissions: [appConfig.permissions.user],
         exec: function (req, res) {
             if (!req.user) {
@@ -14,7 +16,7 @@ define([
     };
 
     // get user object
-    this.object = {
+    rest.object = {
         permissions: [],
         exec: function (req, res) {
             if (!req.object) {
@@ -25,7 +27,7 @@ define([
     };
 
     // get username
-    this.username = {
+    rest.username = {
         permissions: [],
         exec: function (req, res) {
             var object = req.object;
@@ -36,7 +38,7 @@ define([
     };
 
     // get userlist
-    this.userlist = {
+    rest.userlist = {
         permissions: [appConfig.permissions.sysadmin, appConfig.permissions.admin],
         models: ['user'],
         exec: function (req, res, User) {
@@ -50,7 +52,7 @@ define([
     };
 
     // register
-    this.register = {
+    rest.register = {
         models: [appConfig.permissions.user],
         exec: function (req, res, User) {
             var params = req.body,
@@ -91,13 +93,13 @@ define([
     return {
         v1 : {
             post : {
-                'register': this.register
+                'register': rest.register
             },
             get: {
-                'account': this.account,
-                'object': this.object,
-                'username': this.username,
-                '': this.userlist
+                'account': rest.account,
+                'object': rest.object,
+                'username': rest.username,
+                '': rest.userlist
             }
         }
     };

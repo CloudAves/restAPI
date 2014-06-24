@@ -6,6 +6,8 @@ define([
     'middleware/dbconnection',
     'underscore'
 ], function (jwt, appConfig, databaseConfig, modelEndpointHandler, dbconnection, _) {
+    'use strict';
+
     return function (req, res, next) {
         var token,
             parts,
@@ -74,7 +76,6 @@ define([
                 }
             });
         } catch (e) {
-            console.log(e);
             res.send(400, {
                 error: 'invalid_access_token'
             });

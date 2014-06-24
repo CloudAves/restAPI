@@ -5,41 +5,41 @@ define([
 ], function (mongoose, crypto, appConfig) {
     'use strict';
 
-    var Schema = mongoose.Schema;
-
-    // User
-    var User = new Schema({
-        username: {
-            type: String,
-            unique: true,
-            required: true
-        },
-        email: {
-            type: String,
-            unique: true,
-            required: true
-        },
-        hashedPassword: {
-            type: String,
-            required: true
-        },
-        salt: {
-            type: String,
-            required: true
-        },
-        created: {
-            type: Date,
-            'default': Date.now
-        },
-        permissions: {
-            type: [String],
-            'default': [appConfig.permissions.user]
-        },
-        resetpassword: {
-            type: String,
-            'default': null
-        }
-    });
+    var Schema = mongoose.Schema,
+        UserModel,
+        // User
+        User = new Schema({
+            username: {
+                type: String,
+                unique: true,
+                required: true
+            },
+            email: {
+                type: String,
+                unique: true,
+                required: true
+            },
+            hashedPassword: {
+                type: String,
+                required: true
+            },
+            salt: {
+                type: String,
+                required: true
+            },
+            created: {
+                type: Date,
+                'default': Date.now
+            },
+            permissions: {
+                type: [String],
+                'default': [appConfig.permissions.user]
+            },
+            resetpassword: {
+                type: String,
+                'default': null
+            }
+        });
 
     User.methods.encryptPassword = function (password) {
         return crypto.pbkdf2Sync(password, this.salt, 10000, 512).toString('hex');
@@ -63,10 +63,10 @@ define([
         return this.encryptPassword(password) === this.hashedPassword;
     };
 
-    var UserModel = mongoose.model('User', User);
+    UserModel = mongoose.model('User', User);
 
     return {
         model: UserModel,
-        schema: User,
+        schema: User
     };
 });

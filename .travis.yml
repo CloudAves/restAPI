@@ -11,6 +11,7 @@ before_script:
   - grunt exec:createMongoUsers
   - grunt exec:killDB
   - grunt exec:startDB
+  - sleep 15
   - grunt initSystem -username test -password test -email test@test.com
   - grunt reinstall
 script: grunt tests

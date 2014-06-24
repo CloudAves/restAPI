@@ -13,4 +13,4 @@ before_script:
   - grunt exec:startDB
   - grunt initSystem -username test -password test -email test@test.com
   - grunt reinstall
-script: grunt mocha
+script: grunt tests

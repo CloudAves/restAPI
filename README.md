@@ -1,4 +1,4 @@
-restAPI
+restAPI [![Build Status](https://travis-ci.org/KillerCodeMonkey/restAPI.svg?branch=master)](https://travis-ci.org/KillerCodeMonkey/restAPI)
 =======
 
 NodeJS API + crypto + token authentication + multidbsupport
@@ -14,13 +14,14 @@ install
 `make`
 `sudo make install`
 `curl https://www.npmjs.org/install.sh | sh`
-2. install mongodb
+2. install mongodb (check if version >2.6.x)
 `apt-get install mongodb`
 3. clone repo & go in directory
 4. run npm install to install all dependencies (run `npm install -g grunt-cli`) afterwards
 5. set configs in ./config
-6. start mongo with your port and dbpath set in config (`mongod --dbpath [dbpath] --port [port]`)
-7. in a new terminal tab run `grunt exec:createMongoUsers` // creates mongo users to restrict access
+6. run `grunt exec:killDB`
+7. run `grunt exec:startFirstDB`
+7. run `grunt exec:createMongoUsers` // creates mongo users to restrict access
 8. run `grunt exec:killDB` // stops all mongo services
 9. run `grunt exec:startDB` // start mongo session with authentication
 10. run `grunt initSystem -username [sysusername] -password [syspassword] -email [sysemail]` // creates systemdb with sysuser

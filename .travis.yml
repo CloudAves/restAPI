@@ -11,6 +11,6 @@ before_script:
   - grunt exec:createMongoUsers
   - grunt exec:killDB
   - grunt exec:startDB
-  - grunt initSystem -username test -password test -test test@test.com
+  - grunt initSystem -username test -password test -email test@test.com
   - grunt reinstall
 script: grunt mocha

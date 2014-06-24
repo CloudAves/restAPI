@@ -51,6 +51,5 @@ Models & Endpoints
 
 Next steps
 ==========
-* endpoint documentation
 * testcases
 * grunt task for db backup (export/import)

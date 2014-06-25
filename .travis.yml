@@ -6,6 +6,7 @@ before_install: npm install -g grunt-cli
 install: npm install
 before_script: 
   - grunt exec:killDB
+  - rm -rf static/db/*
   - grunt exec:startFirstDB
   - sleep 15
   - grunt exec:createMongoUsers

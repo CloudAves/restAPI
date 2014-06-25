@@ -1,4 +1,5 @@
 define([
+    'node-promise',
     'express',
     'body-parser',
     'method-override',
@@ -9,11 +10,13 @@ define([
     'util/modelEndpointHandler',
     'middleware/authentication',
     'middleware/dbconnection'
-], function (express, bodyParser, methodOverride, errorHandler, log, appConfig, actionHandler, modelEndpointHandler, authentication, dbconnection) {
+], function (promise, express, bodyParser, methodOverride, errorHandler, log, appConfig, actionHandler, modelEndpointHandler, authentication, dbconnection) {
     'use strict';
 
     var app = express(),
-        server;
+        server,
+        Promise = promise.Promise,
+        q = new Promise();
 
     // load models and endpoints
     modelEndpointHandler.load().then(function (results) {
@@ -63,5 +66,9 @@ define([
         // set generic provided api object urls
         app.all('/api/:version/:db/:classname/id/:objectid/:action?', execAction);
 
+        q.resolve(server);
+
     }, log.error);
+
+    return q;
 });

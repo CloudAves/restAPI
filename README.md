@@ -18,7 +18,7 @@ install
 `apt-get install mongodb`
 3. clone repo & go in directory
 4. run npm install to install all dependencies (run `npm install -g grunt-cli`) afterwards
-5. set configs in ./config
+5. set configs in ./config and run following commands as sudo
 6. run `grunt exec:killDB`
 7. run `grunt exec:startFirstDB`
 7. run `grunt exec:createMongoUsers` // creates mongo users to restrict access
@@ -51,6 +51,4 @@ Models & Endpoints
 
 Next steps
 ==========
-* endpoint documentation
-* testcases
 * grunt task for db backup (export/import)

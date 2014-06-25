@@ -27,7 +27,7 @@ module.exports = function (grunt) {
                     timeout: 10000,
                     reporter: reporter || 'spec'
                 },
-                src: ['src/*/test/*.js', 'src/*/test/*/*.js']
+                src: ['tests/*/*.js']
             }
         },
 
@@ -59,7 +59,10 @@ module.exports = function (grunt) {
             },
 
             doc: {
-                command: 'jsdoc endpoints/*.js -d docs'
+                command: [
+                    'rm -rf docs',
+                    'jsdoc endpoints/*.js -d docs'
+                ].join('&&')
             }
         },
 
